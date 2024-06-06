@@ -1,0 +1,33 @@
+version: '3.4'
+
+networks:
+  demobookapi:
+
+services:
+  bookstoredb:
+    container_name: app-db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - 8003:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=password@12345#
+    networks:
+      - demobookapi
+  bookstoreapi:
+    container_name: demo-book-api-app
+    image: ${DOCKER_REGISTRY-}bookstoreapi
+    build:
+      context: .
+      dockerfile: BookStoreAPI/Dockerfile
+    ports:
+      - 8001:8080
+      - 8002:8081
+    depends_on:
+      - bookstoredb
+    environment:
+      - DB_HOST=bookstoredb
+      - DB_NAME=BookStoteAPI
+      - DB_SA_PASSWORD=password@12345#
+    networks:
+      - demobookapi
